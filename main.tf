@@ -29,7 +29,7 @@ resource "aws_instance" "vulnerable_ec2" {
   instance_type          = "t2.nano"
   subnet_id              = module.vpc.public_subnets[0] # Creates instance in first available public VPC subnet
   vpc_security_group_ids = [aws_security_group.vulnerable_sg.id]
-  key_name               = "test-key"        # Key name for ssh
+  key_name               = "weak-key"        # Key name for ssh
 
   # Running script to install apache, mysql
   user_data = <<-EOF

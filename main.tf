@@ -25,28 +25,37 @@ module "vpc" {
 }
 
 resource "aws_instance" "vulnerable_ec2" {
-  ami                    = "ami-06b21ccaeff8cd686" # Amazon AMI
+  ami                    = "ami-06b21ccaeff8cd686" # Amazon Linux 2023 AMI
   instance_type          = "t2.nano"
   subnet_id              = module.vpc.public_subnets[0] # Creates instance in first available public VPC subnet
   vpc_security_group_ids = [aws_security_group.vulnerable_sg.id]
   key_name               = "test-key"        # Key name for ssh
 
-  # # Running script to install apache, mysql
-  # user_data = <<-EOF
-  #             #!/bin/bash
-  #             apt-get update
-  #             apt-get install -y apache2 #mysql-server
-  #             systemctl start apache2
-  #             systemctl enable apache2
+  # Running script to install apache, mysql
+  user_data = <<-EOF
+              #!/bin/bash
+              dnf update -y
               
-  #             # # Configure MySQL to accept remote connections (vulnerable configuration)
-  #             # # Listening on all IP addresses
-  #             # sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
-  #             # systemctl restart mysql
+              # Install Apache web server
+              dnf install -y httpd
+              # Start and enable Apache
+              systemctl start httpd
+              systemctl enable httpd
+
+              # Install MySQL, MariaDB
+              dnf install -y mariadb105-server mariadb105
               
-  #             # Create a test webpage
-  #             echo "<html><body><h1>Vulnerable Test Server</h1></body></html>" > /var/www/html/index.html
-  #             EOF
+              # Configure MySQL to accept remote connections from anywhere
+              # Uses sed to set bind-address to 0.0.0.0, uncommenting if needed
+              sed -i 's/^#bind-address\s*=.*/bind-address = 0.0.0.0/' /etc/my.cnf.d/mariadb-server.cnf
+
+              # Start and enable MariaDB
+              systemctl start mariadb
+              systemctl enable mariadb
+
+              # Create a test webpage
+              echo "<html><body><h1>Vulnerable Test Server</h1></body></html>" > /var/www/html/index.html
+              EOF
 
   tags = {
     Name = "vulnerable_ec2"

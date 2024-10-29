@@ -5,8 +5,7 @@ module "vpc" {
   name = "pentest_VPC"
   cidr = "10.0.0.0/16"
 
-  # Availability zones
-  azs = ["us-east-1a"]
+  azs = ["us-east-1a"] # Availability zone
 
   # Creating public subnet
   public_subnets       = ["10.0.101.0/24"]

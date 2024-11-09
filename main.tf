@@ -52,6 +52,18 @@ resource "aws_instance" "vulnerable_ec2" {
               systemctl start mariadb
               systemctl enable mariadb
 
+              # Enable password authentication in SSH config
+              sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+              # Permit root login via SSH
+              sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+              
+              # Restart sshd to apply the config changes
+              systemctl restart sshd
+
+              # Set a password from the rockyou.txt list for ec2-user
+              echo 'ec2-user:snickers1' | chpasswd
+
               # Create a test webpage
               echo "<html><body><h1>Vulnerable Test Server</h1></body></html>" > /var/www/html/index.html
               EOF

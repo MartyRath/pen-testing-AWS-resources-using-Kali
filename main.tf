@@ -44,7 +44,7 @@ resource "aws_instance" "vulnerable_ec2" {
               # Install MySQL, MariaDB
               dnf install -y mariadb105-server mariadb105
               
-              # Configure MySQL to accept remote connections from anywhere
+              # Configure MySQL to accept remote connections from anywhere, rather than default localhost
               # Uses sed to set bind-address to 0.0.0.0, uncommenting if needed
               sed -i 's/^#bind-address\s*=.*/bind-address = 0.0.0.0/' /etc/my.cnf.d/mariadb-server.cnf
 
